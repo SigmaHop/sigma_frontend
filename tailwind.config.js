@@ -27,8 +27,8 @@ module.exports = withMT({
       backgroundImage: {},
 
       fontFamily: {
-        // outfit: ["var(--font-outfit)"],
-        // sans: ["var(--font-outfit)"],
+        space: ["var(--font-space-mono)"],
+        sans: ["var(--font-space-mono)"],
       },
 
       colors: {
