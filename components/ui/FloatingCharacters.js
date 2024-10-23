@@ -7,9 +7,8 @@ const FloatingCharacters = () => {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    const characters =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
-    const numberOfElements = 50;
+    const characters = "Σ";
+    const numberOfElements = 75;
     const elements = [];
 
     // Create random characters

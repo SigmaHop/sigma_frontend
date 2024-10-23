@@ -4,6 +4,8 @@ import ReduxProvider from "@/providers/ReduxProvider";
 import { Space_Mono } from "next/font/google";
 import FloatingCharacters from "@/components/ui/FloatingCharacters";
 import ConnectWalletModal from "@/components/modal/ConnectWalletModal";
+import { Toaster } from "sonner";
+import WalletProvider from "@/providers/WalletProvider";
 
 const spaceMono = Space_Mono({
   subsets: ["latin-ext"],
@@ -22,10 +24,18 @@ export default function RootLayout({ children }) {
       <body className={`${spaceMono.className} antialiased`}>
         <ReduxProvider>
           <WagmiProvider>
-            {" "}
-            <ConnectWalletModal />
-            <FloatingCharacters />
-            {children}
+            <WalletProvider>
+              <Toaster
+                position="bottom-center"
+                richColors
+                toastOptions={{
+                  className: `flex items-center justify-center rounded-none bg-black text-[var(--primary)] border border-[var(--primary)] ${spaceMono.className}`,
+                }}
+              />
+              <ConnectWalletModal />
+              <FloatingCharacters />
+              {children}
+            </WalletProvider>
           </WagmiProvider>
         </ReduxProvider>
       </body>
