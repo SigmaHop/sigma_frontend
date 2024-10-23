@@ -2,6 +2,8 @@ import "./globals.css";
 import WagmiProvider from "@/providers/WagmiProvider";
 import ReduxProvider from "@/providers/ReduxProvider";
 import { Space_Mono } from "next/font/google";
+import FloatingCharacters from "@/components/ui/FloatingCharacters";
+import ConnectWalletModal from "@/components/modal/ConnectWalletModal";
 
 const spaceMono = Space_Mono({
   subsets: ["latin-ext"],
@@ -19,7 +21,12 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${spaceMono.className} antialiased`}>
         <ReduxProvider>
-          <WagmiProvider>{children}</WagmiProvider>
+          <WagmiProvider>
+            {" "}
+            <ConnectWalletModal />
+            <FloatingCharacters />
+            {children}
+          </WagmiProvider>
         </ReduxProvider>
       </body>
     </html>
