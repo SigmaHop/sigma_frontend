@@ -10,11 +10,13 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useAccount } from "wagmi";
+import Step1 from "../steps/Step1";
 
 export default function AppSection() {
   const [isMounted, setIsMounted] = useState(false);
   const { isConnected } = useAccount();
   const vaultAddress = useSelector((state) => state.vault.address);
+  const step = useSelector((state) => state.step.step);
 
   useEffect(() => {
     setIsMounted(true);
@@ -61,7 +63,7 @@ export default function AppSection() {
     );
   }
 
-  if (isConnected) {
+  if (isConnected && step === 0) {
     return (
       <div className="flex flex-col items-center mt-5 h-full gap-5 text-center">
         <h2 className="text-xl font-bold">Your USDC Vault</h2>
@@ -100,5 +102,9 @@ export default function AppSection() {
         </div>
       </div>
     );
+  }
+
+  if (isConnected && step > 0) {
+    return <>{step === 1 && <Step1 />}</>;
   }
 }

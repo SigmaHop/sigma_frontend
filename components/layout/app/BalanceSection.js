@@ -4,10 +4,12 @@ import { Button, Tooltip } from "@material-tailwind/react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import formatAmount from "@/lib/formatAmount";
+import { increment, resetStep } from "@/redux/slice/stepSlice";
 
 export default function BalanceSection() {
+  const dispatch = useDispatch();
   const [isMounted, setIsMounted] = useState(false);
   const { isConnected } = useAccount();
   const balanceData = useSelector((state) => state.vault.balances);
@@ -15,6 +17,8 @@ export default function BalanceSection() {
     balanceData && balanceData.length > 0
       ? balanceData.reduce((acc, data) => acc + Number(data.balance), 0)
       : 0;
+
+  const step = useSelector((state) => state.step.step);
 
   useEffect(() => {
     setIsMounted(true);
@@ -71,7 +75,7 @@ export default function BalanceSection() {
             : "0.00";
 
           return (
-            <div key={chain.id} className="flex justify-between p-5">
+            <div key={chain.name} className="flex justify-between p-5">
               <div className="text-xs flex flex-col gap-2">{chain.name}</div>
               <p className="text-2xl font-bold">
                 {currentBalanceData
@@ -85,12 +89,27 @@ export default function BalanceSection() {
           );
         })}
       </div>
-      <Button
-        className="mx-5 mb-5 bg-transparent border border-[var(--primary)] rounded-none text-[var(--primary)] hover:bg-[var(--primary)] hover:text-black transition-colors duration-300"
-        onClick={() => {}}
-      >
-        Transfer &gt;
-      </Button>
+      {step === 0 && (
+        <Button
+          className="mx-5 mb-5 bg-transparent border border-[var(--primary)] rounded-none text-[var(--primary)] hover:bg-[var(--primary)] hover:text-black transition-colors duration-300"
+          onClick={() => {
+            dispatch(increment());
+          }}
+        >
+          Transfer &gt;
+        </Button>
+      )}
+
+      {step > 0 && (
+        <Button
+          className="mx-5 mb-5 bg-transparent border border-[var(--primary)] rounded-none text-[var(--primary)] hover:bg-[var(--primary)] hover:text-black transition-colors duration-300"
+          onClick={() => {
+            dispatch(resetStep());
+          }}
+        >
+          Cancel X
+        </Button>
+      )}
     </div>
   );
 }

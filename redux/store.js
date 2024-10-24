@@ -4,6 +4,8 @@ import { configureStore } from "@reduxjs/toolkit";
 import counterReducer from "./slice/counterSlice";
 import modalReducer from "./slice/modalSlice";
 import vaultReducer from "./slice/vaultSlice";
+import stepReducer from "./slice/stepSlice";
+import selectorReducer from "./slice/selectorSlice";
 
 export const store = configureStore({
   reducer: {
@@ -11,6 +13,8 @@ export const store = configureStore({
     counter: counterReducer,
     modal: modalReducer,
     vault: vaultReducer,
+    step: stepReducer,
+    selector: selectorReducer,
   },
 
   middleware: (getDefaultMiddleware) =>
