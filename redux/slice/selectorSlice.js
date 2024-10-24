@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { chains } from "@/lib/config";
 
 const selectorSlice = createSlice({
   name: "selector",
@@ -6,6 +7,14 @@ const selectorSlice = createSlice({
   initialState: {
     fromChains: [],
     toChains: [],
+    amounts: chains.map((chain) => ({
+      chainId: chain.chainId,
+      amount: 0,
+    })),
+    recipients: chains.map((chain) => ({
+      chainId: chain.chainId,
+      address: "",
+    })),
     mode: "from",
   },
 
@@ -39,6 +48,23 @@ const selectorSlice = createSlice({
     setMode: (state, action) => {
       state.mode = action.payload;
     },
+    setAmountByChainId: (state, action) => {
+      const { chainId, amount } = action.payload;
+      const index = state.amounts.findIndex(
+        (amount) => amount.chainId === chainId
+      );
+
+      state.amounts[index].amount = amount;
+    },
+
+    setRecipientByChainId: (state, action) => {
+      const { chainId, address } = action.payload;
+      const index = state.recipients.findIndex(
+        (recipient) => recipient.chainId === chainId
+      );
+
+      state.recipients[index].address = address;
+    },
   },
 });
 
@@ -51,6 +77,8 @@ export const {
   setMode,
   removeFromChain,
   removeToChain,
+  setAmountByChainId,
+  setRecipientByChainId,
 } = selectorSlice.actions;
 
 export default selectorSlice.reducer;

@@ -11,6 +11,8 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useAccount } from "wagmi";
 import Step1 from "../steps/Step1";
+import Step2 from "../steps/Step2";
+import Step3 from "../steps/Step3";
 
 export default function AppSection() {
   const [isMounted, setIsMounted] = useState(false);
@@ -105,6 +107,12 @@ export default function AppSection() {
   }
 
   if (isConnected && step > 0) {
-    return <>{step === 1 && <Step1 />}</>;
+    return (
+      <>
+        {step === 1 && <Step1 />}
+        {step === 2 && <Step2 />}
+        {step === 3 && <Step3 />}
+      </>
+    );
   }
 }
