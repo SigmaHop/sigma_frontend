@@ -4,10 +4,17 @@ import { Button, Tooltip } from "@material-tailwind/react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
+import { useSelector } from "react-redux";
+import formatAmount from "@/lib/formatAmount";
 
 export default function BalanceSection() {
   const [isMounted, setIsMounted] = useState(false);
   const { isConnected } = useAccount();
+  const balanceData = useSelector((state) => state.vault.balances);
+  const totalBalance =
+    balanceData && balanceData.length > 0
+      ? balanceData.reduce((acc, data) => acc + Number(data.balance), 0)
+      : 0;
 
   useEffect(() => {
     setIsMounted(true);
@@ -43,17 +50,40 @@ export default function BalanceSection() {
               ))}
             </div>
           </div>
-          <p className="text-4xl font-bold">0.00 USDC</p>
+          <p className="text-4xl font-bold">
+            {totalBalance.toString() === "0"
+              ? "0.00"
+              : formatAmount(totalBalance / 10 ** 6, 2)}{" "}
+            USDC
+          </p>
         </div>
 
         <div className="border border-[var(--primary)] mx-5 border-b-0"></div>
 
-        {chains.map((chain) => (
-          <div key={chain.id} className="flex justify-between p-5">
-            <div className="text-xs flex flex-col gap-2">{chain.name}</div>
-            <p className="text-2xl font-bold">0.00 USDC</p>
-          </div>
-        ))}
+        {chains.map((chain) => {
+          const currentBalanceData =
+            balanceData &&
+            balanceData.length > 0 &&
+            balanceData.find((data) => data.chainId === chain.chainId);
+
+          const balance = currentBalanceData
+            ? formatAmount(Number(currentBalanceData.balance) / 10 ** 6, 2)
+            : "0.00";
+
+          return (
+            <div key={chain.id} className="flex justify-between p-5">
+              <div className="text-xs flex flex-col gap-2">{chain.name}</div>
+              <p className="text-2xl font-bold">
+                {currentBalanceData
+                  ? balance.toString() !== "0"
+                    ? balance
+                    : "0.00"
+                  : "0.00"}{" "}
+                USDC
+              </p>
+            </div>
+          );
+        })}
       </div>
       <Button
         className="mx-5 mb-5 bg-transparent border border-[var(--primary)] rounded-none text-[var(--primary)] hover:bg-[var(--primary)] hover:text-black transition-colors duration-300"

@@ -6,11 +6,12 @@ import { useAccount } from "wagmi";
 
 export const WalletProvider = ({ children }) => {
   const { isConnected } = useAccount();
-  const { initializeVault } = useVault();
+  const { initializeVault, listenForBalance } = useVault();
 
   useEffect(() => {
     if (isConnected) {
       initializeVault();
+      listenForBalance();
     }
   }, [isConnected]);
 

@@ -15,7 +15,6 @@ export default function AppSection() {
   const [isMounted, setIsMounted] = useState(false);
   const { isConnected } = useAccount();
   const vaultAddress = useSelector((state) => state.vault.address);
-  console.log(vaultAddress);
 
   useEffect(() => {
     setIsMounted(true);
@@ -70,10 +69,10 @@ export default function AppSection() {
           Deposit USDC to your vault <br /> to get started{" "}
         </p>
         <div className="w-[250px] h-[250px] mb-1">
-          <QRCodeGenerator value={vaultAddress.payload} />
+          <QRCodeGenerator value={vaultAddress} />
         </div>
 
-        <CopyAddressButton address={vaultAddress.payload} />
+        <CopyAddressButton address={vaultAddress} />
 
         <div className="flex flex-col gap-2">
           Supported in
