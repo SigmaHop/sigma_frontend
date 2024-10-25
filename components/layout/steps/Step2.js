@@ -108,6 +108,7 @@ export default function Step2() {
           })}
 
         {fromChains &&
+          fromChains.length !== 1 &&
           toChains.length === 1 &&
           fromChains.map((chain) => {
             const currentChain = chains.find((c) => c.chainId === chain);

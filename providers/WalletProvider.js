@@ -2,6 +2,7 @@
 
 import useVault from "@/hooks/useVault";
 import { resetStep } from "@/redux/slice/stepSlice";
+import { resetEstimates } from "@/redux/slice/transactionSlice";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useAccount } from "wagmi";
@@ -16,6 +17,7 @@ export const WalletProvider = ({ children }) => {
       initializeVault();
       listenForBalance();
       dispatch(resetStep());
+      dispatch(resetEstimates());
     }
   }, [isConnected]);
 

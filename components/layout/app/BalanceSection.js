@@ -7,6 +7,7 @@ import { useAccount } from "wagmi";
 import { useDispatch, useSelector } from "react-redux";
 import formatAmount from "@/lib/formatAmount";
 import { increment, resetStep } from "@/redux/slice/stepSlice";
+import { resetEstimates, setSignature } from "@/redux/slice/transactionSlice";
 
 export default function BalanceSection() {
   const dispatch = useDispatch();
@@ -17,6 +18,8 @@ export default function BalanceSection() {
     balanceData && balanceData.length > 0
       ? balanceData.reduce((acc, data) => acc + Number(data.balance), 0)
       : 0;
+  const fromChains = useSelector((state) => state.selector.fromChains);
+  const toChains = useSelector((state) => state.selector.toChains);
 
   const step = useSelector((state) => state.step.step);
 
@@ -76,7 +79,23 @@ export default function BalanceSection() {
 
           return (
             <div key={chain.name} className="flex justify-between p-5">
-              <div className="text-xs flex flex-col gap-2">{chain.name}</div>
+              <div className="text-xs flex flex-col gap-2">
+                <p>{chain.name}</p>
+                <div className="h-2">
+                  <div className="flex gap-2">
+                    {fromChains && fromChains.includes(chain.chainId) && (
+                      <div className="text-[var(--primary)] border border-[var(--primary)] p-1 px-2 text-[10px]">
+                        From
+                      </div>
+                    )}
+                    {toChains && toChains.includes(chain.chainId) && (
+                      <div className="text-[var(--primary)] border border-[var(--primary)] p-1 px-2 text-[10px]">
+                        To
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
               <p className="text-2xl font-bold">
                 {currentBalanceData
                   ? balance.toString() !== "0"
@@ -105,6 +124,8 @@ export default function BalanceSection() {
           className="mx-5 mb-5 bg-transparent border border-[var(--primary)] rounded-none text-[var(--primary)] hover:bg-[var(--primary)] hover:text-black transition-colors duration-300"
           onClick={() => {
             dispatch(resetStep());
+            dispatch(setSignature(null));
+            dispatch(resetEstimates());
           }}
         >
           Cancel X

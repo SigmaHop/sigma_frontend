@@ -29,7 +29,7 @@ export default function RootLayout({ children }) {
                 position="bottom-center"
                 richColors
                 toastOptions={{
-                  className: `flex items-center justify-center rounded-none bg-black text-[var(--primary)] border border-[var(--primary)] ${spaceMono.className}`,
+                  className: `flex items-center justify-center text-center rounded-none bg-black text-[var(--primary)] border border-[var(--primary)] ${spaceMono.className}`,
                 }}
               />
               <ConnectWalletModal />

@@ -6,6 +6,7 @@ import modalReducer from "./slice/modalSlice";
 import vaultReducer from "./slice/vaultSlice";
 import stepReducer from "./slice/stepSlice";
 import selectorReducer from "./slice/selectorSlice";
+import transactionReducer from "./slice/transactionSlice";
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
     vault: vaultReducer,
     step: stepReducer,
     selector: selectorReducer,
+    transaction: transactionReducer,
   },
 
   middleware: (getDefaultMiddleware) =>
