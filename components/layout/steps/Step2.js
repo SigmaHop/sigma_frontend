@@ -8,6 +8,7 @@ import { Button } from "@material-tailwind/react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+import useHop from "@/hooks/useHop";
 
 export default function Step2() {
   const dispatch = useDispatch();
@@ -17,6 +18,7 @@ export default function Step2() {
   const fromChains = useSelector((state) => state.selector.fromChains);
   let isValid = false;
   const totalAmount = amounts.reduce((acc, a) => acc + Number(a.amount), 0);
+  const { getCrossChainQuotes } = useHop();
 
   return (
     <div className="p-5 flex flex-col justify-between h-full w-full">
@@ -29,8 +31,16 @@ export default function Step2() {
             const currentChain = chains.find((c) => c.chainId === chain);
             const mainChain = chains.find((c) => c.chainId === fromChains[0]);
             const amount = amounts.find((a) => a.chainId === chain).amount;
+            const [quotes, setQuotes] = useState(null);
 
             const isSameChain = fromChains.includes(chain);
+
+            useEffect(() => {
+              if (!fromChains[0]) return;
+              getCrossChainQuotes(fromChains[0], chain).then((data) => {
+                setQuotes(data);
+              });
+            }, [fromChains[0], chain]);
 
             const setAmount = (e) => {
               const regex = /^[0-9]*\.?[0-9]*$/;
@@ -86,6 +96,12 @@ export default function Step2() {
                   {isSameChain && (
                     <p className="text-xs">Wormhole fees: 0 USDC</p>
                   )}
+                  {!isSameChain && (
+                    <p className="text-xs">
+                      Wormhole fees: {quotes ? formatAmount(quotes, 2) : "-.--"}{" "}
+                      USDC
+                    </p>
+                  )}
                 </div>
               </div>
             );
@@ -96,7 +112,7 @@ export default function Step2() {
           fromChains.map((chain) => {
             const currentChain = chains.find((c) => c.chainId === chain);
             const amount = amounts.find((a) => a.chainId === chain).amount;
-
+            const [quotes, setQuotes] = useState(null);
             const isSameChain = toChains.includes(chain);
 
             const setAmount = (e) => {
@@ -112,6 +128,13 @@ export default function Step2() {
                 })
               );
             };
+
+            useEffect(() => {
+              if (!toChains[0]) return;
+              getCrossChainQuotes(chain, toChains[0]).then((data) => {
+                setQuotes(data);
+              });
+            }, [toChains[0], chain]);
 
             const currentBalanceData =
               balanceData &&
@@ -152,6 +175,12 @@ export default function Step2() {
                 <div className="flex gap-2 justify-between">
                   {isSameChain && (
                     <p className="text-xs">Wormhole fees: 0 USDC</p>
+                  )}
+                  {!isSameChain && (
+                    <p className="text-xs">
+                      Wormhole fees: {quotes ? formatAmount(quotes, 2) : "-.--"}{" "}
+                      USDC
+                    </p>
                   )}
                 </div>
               </div>
