@@ -48,6 +48,48 @@ export default function useGas() {
           gasEstimates: gasEstimates.data,
         })
       );
+    } else if (
+      (fromChains.length === 1 && toChains.length > 1) ||
+      (fromChains.length === 1 &&
+        toChains.length === 1 &&
+        fromChains[0] !== toChains[0])
+    ) {
+      const chain = chains.find((c) => c.chainId === fromChains[0]);
+
+      const Amounts = toChains.map((c) => {
+        return amounts.find((a) => a.chainId === c).amount;
+      });
+
+      const Recipients = toChains.map((c) => {
+        return recipients.find((r) => r.chainId === c).address;
+      });
+
+      const recipientChains = toChains.map((c) => {
+        return chains.find((chain) => chain.chainId === c).wormhole.chainId;
+      });
+
+      const payload = {
+        SigmaUSDCVault: vaultAddress,
+        sigmaHop: chain.deployments.SigmaHop,
+        from: signer._address,
+        tos: Recipients,
+        amounts: Amounts.map((a) => Number(a * 10 ** 6).toFixed(0)),
+        destchains: recipientChains,
+        deadline: deadline,
+        signature: signature,
+      };
+
+      const gasEstimates = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/gas/singleToMulti/${chain.chainId}`,
+        payload
+      );
+
+      dispatch(
+        setGasEstimatesByChainId({
+          chainId: chain.chainId,
+          gasEstimates: gasEstimates.data,
+        })
+      );
     }
   };
 

@@ -46,10 +46,74 @@ export default function useExecute() {
           signature: signature,
         };
 
-        console.log(payload);
-
         const res = await axios.post(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/transfer/local/${chain.chainId}`,
+          payload
+        );
+
+        if (res?.data?.success) {
+          toast(
+            <div className="flex flex-col items-center text-center text-sm justify-center gap-2">
+              <p>Transaction Successful</p>
+              <a
+                href={`${chain.explorerURL}/tx/${res.data.transactionHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--primary)] underline"
+              >
+                View on Explorer
+              </a>
+            </div>
+          );
+
+          dispatch(resetStep());
+          dispatch(resetEstimates());
+          dispatch(setSignature(null));
+        } else {
+          toast("Transaction Failed");
+          console.log(res.data);
+        }
+      } catch (error) {
+        toast("Transaction Failed");
+        console.log(error);
+      } finally {
+        dispatch(setLoading(false));
+      }
+    } else if (
+      (fromChains.length === 1 && toChains.length > 1) ||
+      (fromChains.length === 1 &&
+        toChains.length === 1 &&
+        fromChains[0] !== toChains[0])
+    ) {
+      try {
+        dispatch(setLoading(true));
+        const chain = chains.find((c) => c.chainId === fromChains[0]);
+
+        const Amounts = toChains.map((c) => {
+          return amounts.find((a) => a.chainId === c).amount;
+        });
+
+        const Recipients = toChains.map((c) => {
+          return recipients.find((r) => r.chainId === c).address;
+        });
+
+        const recipientChains = toChains.map((c) => {
+          return chains.find((chain) => chain.chainId === c).wormhole.chainId;
+        });
+
+        const payload = {
+          SigmaUSDCVault: vaultAddress,
+          sigmaHop: chain.deployments.SigmaHop,
+          from: signer._address,
+          tos: Recipients,
+          amounts: Amounts.map((a) => Number(a * 10 ** 6).toFixed(0)),
+          destchains: recipientChains,
+          deadline: deadline,
+          signature: signature,
+        };
+
+        const res = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/transfer/singleToMulti/${chain.chainId}`,
           payload
         );
 
