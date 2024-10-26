@@ -32,29 +32,20 @@ export default function useSign() {
 
       const nonce = await sigmaForwarder.nonces(signer._address);
 
-      const forwarderSigner = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/transfer/signer`
-      );
-
-      const executor = forwarderSigner.data.address;
-
-      const executorNonce = await sigmaForwarder.nonces(executor);
-
       const amount = amounts.find((a) => a.chainId === chain.chainId).amount;
       const recipient = recipients.find((r) => r.chainId === chain.chainId)
         .address;
 
       const domainType =
-        "EIP712Domain(string name,string version,uint16 chainId,uint256 nonce)";
+        "EIP712Domain(string name,string version,uint16 chainId)";
 
       const domainHashInput = ethers.utils.defaultAbiCoder.encode(
-        ["bytes32", "bytes32", "bytes32", "uint16", "uint256"],
+        ["bytes32", "bytes32", "bytes32", "uint16"],
         [
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes(domainType)),
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("Sigma Forwarder")),
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")),
           chain.wormhole.chainId,
-          executorNonce,
         ]
       );
 
@@ -106,16 +97,6 @@ export default function useSign() {
 
       const nonce = await sigmaForwarder.nonces(signer._address);
 
-      const forwarderSigner = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/transfer/signer`
-      );
-
-      const executor = forwarderSigner.data.address;
-
-      console.log(executor);
-
-      const executorNonce = await sigmaForwarder.nonces(executor);
-
       const Amounts = toChains.map((c) => {
         return amounts.find((a) => a.chainId === c).amount;
       });
@@ -129,16 +110,15 @@ export default function useSign() {
       });
 
       const domainType =
-        "EIP712Domain(string name,string version,uint16[] chainIds,uint256 nonce)";
+        "EIP712Domain(string name,string version,uint16[] chainIds)";
 
       const domainHashInput = ethers.utils.defaultAbiCoder.encode(
-        ["bytes32", "bytes32", "bytes32", "uint16[]", "uint256"],
+        ["bytes32", "bytes32", "bytes32", "uint16[]"],
         [
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes(domainType)),
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("Sigma Forwarder")),
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")),
           recipientChains,
-          executorNonce,
         ]
       );
 
@@ -168,6 +148,93 @@ export default function useSign() {
             recipientChains,
             deadline,
             nonce,
+          ]
+        )
+      );
+
+      const digest = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["string", "bytes32", "bytes32"],
+          ["\x19\x01", domainSeparator, structHash]
+        )
+      );
+
+      const signature = await signer.signMessage(ethers.utils.arrayify(digest));
+
+      dispatch(setDeadline(deadline));
+
+      dispatch(setSignature(signature));
+    } else {
+      const srcChains = fromChains.map((c) =>
+        chains.find((chain) => chain.chainId === c)
+      );
+
+      const amount = fromChains.map((c) => {
+        return amounts.find((a) => a.chainId === c).amount;
+      });
+
+      const recipient = recipients.find((r) => r.chainId === toChains[0]);
+
+      const destChain = chains.find((c) => c.chainId === toChains[0]);
+
+      let nonces = [];
+
+      for (let i = 0; i < srcChains.length; i++) {
+        const chain = srcChains[i];
+        const provider = new ethers.providers.JsonRpcProvider(chain.rpcUrl);
+
+        const sigmaForwarder = new ethers.Contract(
+          chain.deployments.SigmaForwarder,
+          abis.SigmaForwarder,
+          provider
+        );
+
+        const nonce = await sigmaForwarder.nonces(signer._address);
+
+        nonces.push(Number(nonce));
+      }
+
+      const deadline = Math.floor(Date.now() / 1000) + 60 * 10;
+
+      const domainType =
+        "EIP712Domain(string name,string version,uint16[] chainIds)";
+
+      const domainHashInput = ethers.utils.defaultAbiCoder.encode(
+        ["bytes32", "bytes32", "bytes32", "uint16[]"],
+        [
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes(domainType)),
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("Sigma Forwarder")),
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1")),
+          srcChains.map((c) => c.wormhole.chainId),
+        ]
+      );
+
+      const domainSeparator = ethers.utils.keccak256(domainHashInput);
+
+      const structType =
+        "MultiToSingleTransferToken(address sigmaHop,address to,uint256[] amounts,uint16[] srcChains,uint16 destChain,uint256 deadline,uint256[] nonces)";
+
+      const structHash = ethers.utils.keccak256(
+        ethers.utils.defaultAbiCoder.encode(
+          [
+            "bytes32",
+            "address",
+            "address",
+            "uint256[]",
+            "uint16[]",
+            "uint16",
+            "uint256",
+            "uint256[]",
+          ],
+          [
+            ethers.utils.keccak256(ethers.utils.toUtf8Bytes(structType)),
+            srcChains[0].deployments.SigmaHop,
+            recipient.address,
+            amount.map((a) => Number(a * 10 ** 6).toFixed(0)),
+            srcChains.map((c) => c.wormhole.chainId),
+            destChain.wormhole.chainId,
+            deadline,
+            nonces,
           ]
         )
       );

@@ -65,6 +65,12 @@ const selectorSlice = createSlice({
 
       state.recipients[index].address = address;
     },
+    resetAmounts: (state) => {
+      state.amounts = chains.map((chain) => ({
+        chainId: chain.chainId,
+        amount: 0,
+      }));
+    },
   },
 });
 
@@ -79,6 +85,7 @@ export const {
   removeToChain,
   setAmountByChainId,
   setRecipientByChainId,
+  resetAmounts,
 } = selectorSlice.actions;
 
 export default selectorSlice.reducer;

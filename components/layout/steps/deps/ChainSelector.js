@@ -6,6 +6,7 @@ import {
   removeFromChain,
   setMode,
   removeToChain,
+  resetAmounts,
 } from "@/redux/slice/selectorSlice";
 import { Button } from "@material-tailwind/react";
 import { useDispatch } from "react-redux";
@@ -23,6 +24,7 @@ export default function ChainSelector({ fromChains, toChains, mode = "from" }) {
         onClick={() => {
           dispatch(toggleChainSelectorModal());
           dispatch(setMode(mode));
+          dispatch(resetAmounts());
         }}
       >
         Select Chains
@@ -76,9 +78,11 @@ export default function ChainSelector({ fromChains, toChains, mode = "from" }) {
             if (mode === "from") {
               dispatch(setMode("from"));
               dispatch(toggleChainSelectorModal());
+              dispatch(resetAmounts());
             } else {
               dispatch(setMode("to"));
               dispatch(toggleChainSelectorModal());
+              dispatch(resetAmounts());
             }
           }}
         >

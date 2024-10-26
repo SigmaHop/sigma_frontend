@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import formatAmount from "@/lib/formatAmount";
 import { increment, resetStep } from "@/redux/slice/stepSlice";
 import { resetEstimates, setSignature } from "@/redux/slice/transactionSlice";
+import { resetAmounts } from "@/redux/slice/selectorSlice";
 
 export default function BalanceSection() {
   const dispatch = useDispatch();
@@ -126,6 +127,7 @@ export default function BalanceSection() {
             dispatch(resetStep());
             dispatch(setSignature(null));
             dispatch(resetEstimates());
+            dispatch(resetAmounts());
           }}
         >
           Cancel X

@@ -1,9 +1,10 @@
 "use client";
 
-import { chains } from "@/lib/config";
+import { abis, chains } from "@/lib/config";
 import { setGasEstimatesByChainId } from "@/redux/slice/transactionSlice";
 import { useEthersSigner } from "@/utils/ethersSigner";
 import axios from "axios";
+import { ethers } from "ethers";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function useGas() {
@@ -88,6 +89,66 @@ export default function useGas() {
         setGasEstimatesByChainId({
           chainId: chain.chainId,
           gasEstimates: gasEstimates.data,
+        })
+      );
+    } else {
+      const srcChains = fromChains.map((c) =>
+        chains.find((chain) => chain.chainId === c)
+      );
+
+      const amount = fromChains.map((c) => {
+        return amounts.find((a) => a.chainId === c).amount;
+      });
+
+      const recipient = recipients.find((r) => r.chainId === toChains[0]);
+
+      const destChain = chains.find((c) => c.chainId === toChains[0]);
+
+      let nonces = [];
+
+      for (let i = 0; i < srcChains.length; i++) {
+        const chain = srcChains[i];
+        const provider = new ethers.providers.JsonRpcProvider(chain.rpcUrl);
+
+        const sigmaForwarder = new ethers.Contract(
+          chain.deployments.SigmaForwarder,
+          abis.SigmaForwarder,
+          provider
+        );
+
+        const nonce = await sigmaForwarder.nonces(signer._address);
+
+        nonces.push(Number(nonce));
+      }
+
+      const payload = {
+        SigmaUSDCVault: vaultAddress,
+        SigmaHop: srcChains[0].deployments.SigmaHop,
+        from: signer._address,
+        to: recipient.address,
+        amounts: amount.map((a) => Number(a * 10 ** 6).toFixed(0)),
+        srcChains: srcChains.map((c) => c.wormhole.chainId),
+        destChain: destChain.wormhole.chainId,
+        nonces: nonces,
+        deadline: deadline,
+        signature: signature,
+      };
+
+      await Promise.all(
+        srcChains.map(async (chain) => {
+          const gasEstimates = await axios.post(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/gas/multiToSingle/${chain.chainId}`,
+            payload
+          );
+
+          console.log(gasEstimates.data);
+
+          dispatch(
+            setGasEstimatesByChainId({
+              chainId: chain.chainId,
+              gasEstimates: gasEstimates.data,
+            })
+          );
         })
       );
     }
