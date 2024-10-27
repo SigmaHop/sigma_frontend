@@ -12,6 +12,7 @@ import {
 import { useEthersSigner } from "@/utils/ethersSigner";
 import axios from "axios";
 import { ethers } from "ethers";
+import { ArrowUpRight } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 
@@ -128,10 +129,23 @@ export default function useExecute() {
                 href={`${chain.explorerURL}/tx/${res.data.transactionHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[var(--primary)] underline"
+                className="text-[var(--primary)] underline flex items-center gap-2"
               >
                 View on Explorer
+                <ArrowUpRight className="w-3 h-3" />
               </a>
+
+              {recipientChains.every((c) => c !== chain.wormhole.chainId) && (
+                <a
+                  href={`https://wormholescan.io/#/tx/${res.data.transactionHash}?network=Testnet`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--primary)] underline flex items-center gap-2"
+                >
+                  View on Wormhole Scan
+                  <ArrowUpRight className="w-3 h-3" />
+                </a>
+              )}
             </div>
           );
 
@@ -204,8 +218,6 @@ export default function useExecute() {
               payload
             );
 
-            console.log(res.data);
-
             Status.push({
               data: res.data,
               chain: chain,
@@ -222,10 +234,22 @@ export default function useExecute() {
                   href={`${s.chain.explorerURL}/tx/${s.data.transactionHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[var(--primary)] underline"
+                  className="text-[var(--primary)] underline flex items-center gap-2"
                 >
                   View on {s.chain.name} Explorer
+                  <ArrowUpRight className="w-3 h-3" />
                 </a>
+                {s.chain.chainId !== destChain.chainId && (
+                  <a
+                    href={`https://wormholescan.io/#/tx/${s.data.transactionHash}?network=Testnet`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[var(--primary)] underline flex items-center gap-2"
+                  >
+                    View on Wormhole Scan
+                    <ArrowUpRight className="w-3 h-3" />
+                  </a>
+                )}
               </div>
             );
 

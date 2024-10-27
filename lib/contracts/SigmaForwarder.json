@@ -185,6 +185,25 @@
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "messageHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getEthSignedMessageHash",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "SigmaUSDCVault",
         "type": "address"
@@ -243,11 +262,16 @@
         "internalType": "uint256",
         "name": "baseGas",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wormholeTokenFees",
+        "type": "uint256"
       }
     ],
     "name": "multiToSingleTransferToken",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -333,11 +357,16 @@
         "internalType": "uint256",
         "name": "baseGas",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wormholeTokenFees",
+        "type": "uint256"
       }
     ],
     "name": "singleToMultiTransferToken",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {

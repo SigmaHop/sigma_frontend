@@ -12,6 +12,7 @@ const transactionSlice = createSlice({
     })),
     deadline: null,
     loading: false,
+    gasLoading: false,
   },
 
   reducers: {
@@ -40,6 +41,10 @@ const transactionSlice = createSlice({
     setLoading: (state, action) => {
       state.loading = action.payload;
     },
+
+    setGasLoading: (state, action) => {
+      state.gasLoading = action.payload;
+    },
   },
 });
 
@@ -49,6 +54,7 @@ export const {
   setDeadline,
   resetEstimates,
   setLoading,
+  setGasLoading,
 } = transactionSlice.actions;
 
 export default transactionSlice.reducer;

@@ -9,6 +9,7 @@ import useGas from "@/hooks/useGas";
 import formatAmount from "@/lib/formatAmount";
 import { toast } from "sonner";
 import useExecute from "@/hooks/useExecute";
+import { Loader2 } from "lucide-react";
 
 export default function Step4() {
   const fromChains = useSelector((state) => state.selector.fromChains);
@@ -18,6 +19,7 @@ export default function Step4() {
   const gasEstimates = useSelector((state) => state.transaction.gas);
   const dispatch = useDispatch();
   const { execute } = useExecute();
+  const gasLoading = useSelector((state) => state.transaction.gasLoading);
 
   let isValid = false;
 
@@ -46,29 +48,43 @@ export default function Step4() {
 
               <div className="flex justify-between items-center">
                 <p>Wormhole fees:</p>
-                <p>
+                <p className="flex items-center">
                   {" "}
-                  {currentEstimates?.gasEstimates
-                    ? currentEstimates?.gasEstimates?.hopUSDCFees
-                      ? formatAmount(
+                  {!gasLoading ? (
+                    currentEstimates?.gasEstimates ? (
+                      currentEstimates?.gasEstimates?.hopUSDCFees ? (
+                        formatAmount(
                           currentEstimates?.gasEstimates?.hopUSDCFees /
                             10 ** 18,
                           5
                         )
-                      : "0.00"
-                    : "-.--"}{" "}
+                      ) : (
+                        "0.00"
+                      )
+                    ) : (
+                      "-.--"
+                    )
+                  ) : (
+                    <Loader2 className="w-3 h-3 animate-spin mr-2" />
+                  )}{" "}
                   USDC
                 </p>
               </div>
               <div className="flex justify-between items-center">
                 <p>Gas fees:</p>
-                <p>
-                  {currentEstimates?.gasEstimates
-                    ? formatAmount(
+                <p className="flex items-center ">
+                  {!gasLoading ? (
+                    currentEstimates?.gasEstimates ? (
+                      formatAmount(
                         currentEstimates?.gasEstimates?.estimateFees / 10 ** 18,
                         5
                       )
-                    : "-.--"}{" "}
+                    ) : (
+                      "-.--"
+                    )
+                  ) : (
+                    <Loader2 className="w-3 h-3 animate-spin mr-2" />
+                  )}{" "}
                   USDC
                 </p>
               </div>
@@ -98,6 +114,11 @@ export default function Step4() {
         <Button
           className=" bg-transparent border border-[var(--primary)] rounded-none text-[var(--primary)] hover:bg-[var(--primary)] hover:text-black transition-colors duration-300"
           onClick={() => {
+            if (gasLoading) {
+              toast("Please wait for the gas fees to load.");
+              return;
+            }
+
             if (!isValid) {
               toast("Seems like you are out of Gas. Please try again later.");
               return;

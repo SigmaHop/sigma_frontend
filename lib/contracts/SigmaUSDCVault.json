@@ -195,11 +195,16 @@
         "internalType": "uint256",
         "name": "baseGas",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "wormholeFeesToken",
+        "type": "uint256"
       }
     ],
     "name": "transferTokenCrossChain",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
